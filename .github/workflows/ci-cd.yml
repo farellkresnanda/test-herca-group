@@ -29,9 +29,9 @@ jobs:
             -t kresnandaf/herca-frontend:latest \
             -f Dockerfile-Frontend .
 
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.LARAVEL_ENV }}" > backend/.env
+      # - name: Create .env file
+      #   run: |
+      #     echo "${{ secrets.LARAVEL_ENV }}" > backend/.env
 
       - name: 📤 Push Docker Images
         run: |
