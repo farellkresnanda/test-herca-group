@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Set working directory
-WORKDIR /var/www/herca/backend
+WORKDIR /var/www/herca/
 
 # Copy app source
-COPY backend/ /var/www/herca/backend/
+COPY backend/ /var/www/herca/
 
 # Permissions
-RUN chown -R www-data:www-data /var/www/herca/backend \
-    && chmod -R 755 /var/www/herca/backend
+RUN chown -R www-data:www-data /var/www/herca/ \
+    && chmod -R 755 /var/www/herca/
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
