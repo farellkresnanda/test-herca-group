@@ -3,62 +3,63 @@ name: 🚀 CI/CD Laravel + Vite
 on:
   push:
     branches:
-      - "*"
+      - "*" # Jalankan untuk semua branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: Docker-Test
 
     steps:
-      - name: 📦 Checkout Code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
       - name: 🔐 Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: 🛠 Build Backend Docker Image (Laravel)
-        run: docker build -t kresnandaf/herca-backend:latest ./backend
+        run: |
+          docker build \
+            -t kresnandaf/herca-backend:latest \
+            -f Dockerfile-Backend .
 
       - name: 🛠 Build Frontend Docker Image (Vite)
-        run: docker build -t kresnandaf/herca-frontend:latest ./frontend
+        run: |
+          docker build \
+            -t kresnandaf/herca-frontend:latest \
+            -f Dockerfile-Frontend .
 
       - name: 📤 Push Docker Images
         run: |
           docker push kresnandaf/herca-backend:latest
           docker push kresnandaf/herca-frontend:latest
 
-      - name: 🚢 Deploy to VPS via SSH
+      - name: 🚀 Deploy to VPS via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.BE_PORT }}
           script: |
-            echo "🔁 Pulling latest Docker images..."
+            echo "📦 Pull latest images..."
             docker pull kresnandaf/herca-backend:latest
             docker pull kresnandaf/herca-frontend:latest
 
-            echo "🛑 Stop and remove old containers if exist"
+            echo "🛑 Stop existing containers"
             docker stop herca-backend || true && docker rm herca-backend || true
             docker stop herca-frontend || true && docker rm herca-frontend || true
 
-            echo "🚀 Run Laravel Backend"
+            echo "🚀 Start Laravel backend"
             docker run -d \
               --name herca-backend \
+              -p ${{ secrets.SSH_BE_PORT }}:8000 \
               --restart unless-stopped \
-              -p ${{ secrets.BE_PORT }}:8000 \
               kresnandaf/herca-backend:latest
 
-            echo "🚀 Run Vite Frontend"
+            echo "🚀 Start Vite frontend"
             docker run -d \
               --name herca-frontend \
+              -p ${{ secrets.FE_SSH_PORT }}:3000 \
               --restart unless-stopped \
-              -p ${{ secrets.FE_PORT }}:3000 \
               kresnandaf/herca-frontend:latest
 
-            echo "🧹 Clean unused Docker data"
-            docker system prune -f
-
-            echo "✅ Deployment finished successfully!"
+            echo "✅ Deployed successfully!"
