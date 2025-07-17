@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Set working directory
-WORKDIR /var/www/backend
+WORKDIR /var/www/herca/backend
 
 # Copy app source
-COPY backend/ /var/www/backend/
+COPY backend/ /var/www/herca/backend/
 
 # Permissions
-RUN chown -R www-data:www-data /var/www/backend \
-    && chmod -R 755 /var/www/backend
+RUN chown -R www-data:www-data /var/www/herca/backend \
+    && chmod -R 755 /var/www/herca/backend
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
