@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www/herca
 
 # Copy existing application directory contents
 COPY . /var/www/html
