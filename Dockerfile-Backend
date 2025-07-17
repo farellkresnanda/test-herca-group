@@ -9,6 +9,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/herca/
 
 COPY backend/ /var/www/herca/
+COPY backend/.env /var/www/herca/.env
 
 RUN chown -R www-data:www-data /var/www/herca/ \
     && chmod -R 755 /var/www/herca/

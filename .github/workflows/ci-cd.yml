@@ -29,6 +29,10 @@ jobs:
             -t kresnandaf/herca-frontend:latest \
             -f Dockerfile-Frontend .
 
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.LARAVEL_ENV }}" > backend/.env
+
       - name: 📤 Push Docker Images
         run: |
           docker push kresnandaf/herca-backend:latest
@@ -55,6 +59,10 @@ jobs:
               -p ${{ secrets.SSH_BE_PORT }}:8000 \
               --restart unless-stopped \
               kresnandaf/herca-backend:latest
+
+            echo "📦 Running Laravel migration and seeder..."
+            docker exec herca-backend php artisan migrate:fresh --seed
+            docker exec herca-backend php artisan config:cache
 
             echo "🚀 Start Vite frontend"
             docker run -d \
