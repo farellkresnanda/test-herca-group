@@ -9,18 +9,18 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Set working directory
-WORKDIR /var/www/herca
+WORKDIR /var/www/backend
 
-# Copy existing application directory contents
-COPY . /var/www/html
+# Copy app source
+COPY backend/ /var/www/backend/
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Permissions
+RUN chown -R www-data:www-data /var/www/backend \
+    && chmod -R 755 /var/www/backend
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-interaction --optimize-autoloader
 
-# Build Vite assets (assuming Node.js is available in base image or prebuilt)
-# For now, assets can be built in CI and COPY hasil build ke sini
+# Expose port 8000
+EXPOSE 8000

@@ -6,7 +6,7 @@ function KomisiList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/komisi")
+      .get("/api/komisi")
       .then((res) => setKomisiData(res.data))
       .catch((err) => console.error("Gagal ambil data komisi:", err));
   }, []);

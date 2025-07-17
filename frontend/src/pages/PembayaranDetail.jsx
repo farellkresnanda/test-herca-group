@@ -12,7 +12,7 @@ function PembayaranDetail() {
 
   const fetchData = () => {
     axios
-      .get(`http://localhost:8000/api/pembayaran/${id}`)
+      .get(`/api/pembayaran/${id}`)
       .then((res) => setData(res.data))
       .catch((err) => console.error("Gagal ambil data pembayaran:", err));
   };
@@ -24,7 +24,7 @@ function PembayaranDetail() {
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:8000/api/pembayaran", {
+      .post("/api/pembayaran", {
         penjualan_id: data.penjualan.id,
         tanggal_bayar: bayarTanggal,
         jumlah_bayar: bayarJumlah,

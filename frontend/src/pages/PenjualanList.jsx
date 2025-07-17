@@ -7,7 +7,7 @@ function PenjualanList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/penjualan")
+      .get("/api/penjualan")
       .then((res) => setPenjualan(res.data))
       .catch((err) => console.error("Gagal ambil data penjualan:", err));
   }, []);
