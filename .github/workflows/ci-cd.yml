@@ -3,7 +3,7 @@ name: 🚀 CI/CD Laravel + Vite
 on:
   push:
     branches:
-      - "*" # Jalankan untuk semua branch
+      - "*"
 
 jobs:
   build-and-deploy:
@@ -11,64 +11,38 @@ jobs:
     environment: Development
 
     steps:
-      - name: 📥 Checkout code
+      - name: 📦 Checkout Code
         uses: actions/checkout@v4
 
       - name: 🔐 Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 🛠 Build Backend Docker Image (Laravel)
-        run: |
-          docker build \
-            -t kresnandaf/herca-backend:latest \
-            -f Dockerfile-Backend .
+      - name: 🛠 Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest .
 
-      - name: 🛠 Build Frontend Docker Image (Vite)
-        run: |
-          docker build \
-            -t kresnandaf/herca-frontend:latest \
-            -f Dockerfile-Frontend .
+      - name: 📤 Push Docker Image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
 
-      # - name: Create .env file
-      #   run: |
-      #     echo "${{ secrets.LARAVEL_ENV }}" > backend/.env
-
-      - name: 📤 Push Docker Images
-        run: |
-          docker push kresnandaf/herca-backend:latest
-          docker push kresnandaf/herca-frontend:latest
-
-      - name: 🚀 Deploy to VPS via SSH
+      - name: 🚢 Deploy to VPS Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "📦 Pull latest images..."
-            docker pull kresnandaf/herca-backend:latest
-            docker pull kresnandaf/herca-frontend:latest
+            echo "🔁 Pulling latest Docker image..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
 
-            echo "🛑 Stop existing containers"
-            docker stop herca-backend || true && docker rm herca-backend || true
-            docker stop herca-frontend || true && docker rm herca-frontend || true
+            echo "🛑 Stopping and removing old container (if exists)..."
+            docker stop pakuwon-fe-dev || true
+            docker rm pakuwon-fe-dev || true
 
-            echo "🚀 Start Laravel backend"
+            echo "🚀 Running new container..."
             docker run -d \
-              --name herca-backend \
-              -p ${{ secrets.SSH_BE_PORT }}:8000 \
+              --name pakuwon-fe-dev \
               --restart unless-stopped \
-              kresnandaf/herca-backend:latest
+              -p ${{ secrets.BE_PORT }}:9000 \
+              -v /etc/herca/.env:/var/www/herca/.env \
+              ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
 
-            echo "📦 Running Laravel migration and seeder..."
-            docker exec herca-backend php artisan migrate:fresh --seed
-            docker exec herca-backend php artisan config:cache
-
-            echo "🚀 Start Vite frontend"
-            docker run -d \
-              --name herca-frontend \
-              -p ${{ secrets.FE_SSH_PORT }}:3000 \
-              --restart unless-stopped \
-              kresnandaf/herca-frontend:latest
-
-            echo "✅ Deployed successfully!"
+            echo "✅ Deployment complete!"
