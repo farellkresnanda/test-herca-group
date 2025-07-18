@@ -10,7 +10,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/penjualan', [PenjualanController::class, 'index']);
-Route::get('/komisi', [KomisiController::class, 'index']);
-Route::post('/pembayaran', [PembayaranController::class, 'store']);
-Route::get('/pembayaran/{penjualan_id}', [PembayaranController::class, 'show']);
+Route::prefix('api')->group(function () {
+    Route::get('/penjualan', [PenjualanController::class, 'index']);
+    Route::get('/komisi', [KomisiController::class, 'index']);
+    Route::post('/pembayaran', [PembayaranController::class, 'store']);
+    Route::get('/pembayaran/{penjualan_id}', [PembayaranController::class, 'show']);
+});
