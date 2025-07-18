@@ -18,10 +18,10 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: 🛠 Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/herca-app-dev:latest .
 
       - name: 📤 Push Docker Image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/herca-app-dev:latest
 
       - name: 🚢 Deploy to VPS Server
         uses: appleboy/ssh-action@master
@@ -31,18 +31,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "🔁 Pulling latest Docker image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/herca-app-dev:latest
 
             echo "🛑 Stopping and removing old container (if exists)..."
-            docker stop pakuwon-fe-dev || true
-            docker rm pakuwon-fe-dev || true
+            docker stop herca-app-dev || true
+            docker rm herca-app-dev || true
 
             echo "🚀 Running new container..."
             docker run -d \
-              --name pakuwon-fe-dev \
+              --name herca-app-dev \
               --restart unless-stopped \
               -p ${{ secrets.BE_PORT }}:9000 \
               -v /etc/herca/.env:/var/www/herca/.env \
-              ${{ secrets.DOCKER_USERNAME }}/pakuwon-fe-dev:latest
+              ${{ secrets.DOCKER_USERNAME }}/herca-app-dev:latest
 
             echo "✅ Deployment complete!"
