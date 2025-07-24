@@ -27,3 +27,9 @@ php artisan serve
 cd frontend
 npm install
 npm run dev
+
+
+### Modifikasi FrontEnd Tambahan
+-  Menambah Fitur Search Di Komisi Dan Penjualan
+- Menambah Status Dan Dinamis Button Di Penjualan
+- Menambah download Struk Di Pembayaran Jika Lunas
