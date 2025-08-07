@@ -24,9 +24,9 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl soap opc
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Konfigurasi locale
-RUN apk add --no-cache gettext \
-    && echo "id_ID.UTF-8 UTF-8" >> /etc/locale.gen \
-    && locale-gen \
+RUN echo "id_ID.UTF-8 UTF-8" >> /etc/locale.gen \
+    && dpkg-reconfigure --frontend=noninteractive locales \
+    && locale-gen id_ID.UTF-8 \
     && /usr/sbin/update-locale LANG=id_ID.UTF-8
 
 # Menginstal Composer
@@ -51,7 +51,7 @@ RUN chown -R www-data:www-data /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Atur Nginx
-COPY ./nginx.conf /etc/nginx/sites-available/default
+COPY ./nginx/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 RUN rm /etc/nginx/sites-available/default
 RUN rm /etc/nginx/sites-enabled/default
