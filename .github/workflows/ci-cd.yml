@@ -1,0 +1,55 @@
+name: 🚀 CI/CD herca-group
+
+on:
+  push:
+    branches:
+      - main  # Ganti "main" jika Anda menggunakan branch lain untuk development
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v2
+
+      - name: 🔐 Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      - name: 🛠 Build & Push Backend Docker Image
+        run: |
+          docker build ./backend -t kresnandaf/herca-backend:latest
+          docker push kresnandaf/herca-backend:latest
+
+      - name: 🛠 Build & Push Frontend Docker Image
+        run: |
+          docker build ./frontend -t kresnandaf/herca-frontend:latest
+          docker push kresnandaf/herca-frontend:latest
+
+      - name: 🚢 Deploy to VPS Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "--- Starting Deployment on VPS ---"
+            cd /path/to/your/project # Ganti dengan path direktori proyek Anda di VPS
+
+            echo "🔁 Pulling latest Docker images from Docker Hub..."
+            docker pull kresnandaf/herca-backend:latest
+            docker pull kresnandaf/herca-frontend:latest
+            
+            echo "🛑 Stopping and removing old containers..."
+            docker-compose down || true
+
+            echo "🧹 Cleaning up unused Docker resources..."
+            docker system prune -f
+            
+            echo "🚀 Running new containers with Docker Compose..."
+            docker-compose up -d
+
+            echo "⏳ Running migrations on the backend container..."
+            docker-compose exec herca-backend php artisan migrate --force
+
+            echo "✅ Deployment completed successfully!"
