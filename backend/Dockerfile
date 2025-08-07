@@ -24,8 +24,10 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl soap opc
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Konfigurasi locale
-RUN locale-gen id_ID.UTF-8 && \
-    /usr/sbin/update-locale LANG=id_ID.UTF-8
+RUN apk add --no-cache gettext \
+    && echo "id_ID.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && /usr/sbin/update-locale LANG=id_ID.UTF-8
 
 # Menginstal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
