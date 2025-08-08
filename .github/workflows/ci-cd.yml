@@ -26,6 +26,11 @@ jobs:
           docker build ./frontend -t kresnandaf/herca-frontend:latest
           docker push kresnandaf/herca-frontend:latest
 
+      - name: 🛠 Build & Push Nginx Docker Image
+        run: |
+          docker build ./nginx -t kresnandaf/herca-nginx:latest
+          docker push kresnandaf/herca-nginx:latest
+
       - name: 📂 Copy project files to VPS
         uses: appleboy/scp-action@master
         with:
