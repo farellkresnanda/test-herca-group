@@ -34,15 +34,21 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "--- Starting Deployment on VPS ---"
-            cd /path/to/your/project # Ganti dengan path direktori proyek Anda di VPS
-
+            
+            # Buat direktori proyek jika belum ada
+            PROJECT_DIR="/home/${{ secrets.USERNAME }}/herca-group"
+            mkdir -p $PROJECT_DIR
+            
+            # Pindahkan file docker-compose.yml dan nginx/default.conf ke VPS
+            scp -r ./docker-compose.yml ./nginx $PROJECT_DIR
+            
             echo "🔁 Pulling latest Docker images from Docker Hub..."
-            docker pull kresnandaf/herca-backend:latest
-            docker pull kresnandaf/herca-frontend:latest
+            cd $PROJECT_DIR
+            docker-compose pull
             
             echo "🛑 Stopping and removing old containers..."
             docker-compose down || true
-
+            
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -f
             
