@@ -3,7 +3,7 @@ name: 🚀 CI/CD herca-group
 on:
   push:
     branches:
-      - main  # Ganti "main" jika Anda menggunakan branch lain untuk development
+      - main
 
 jobs:
   build-and-deploy:
@@ -26,6 +26,15 @@ jobs:
           docker build ./frontend -t kresnandaf/herca-frontend:latest
           docker push kresnandaf/herca-frontend:latest
 
+      - name: 📂 Copy project files to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml,nginx"
+          target: "/home/${{ secrets.USERNAME }}/herca-group"
+
       - name: 🚢 Deploy to VPS Server
         uses: appleboy/ssh-action@master
         with:
@@ -35,20 +44,15 @@ jobs:
           script: |
             echo "--- Starting Deployment on VPS ---"
             
-            # Buat direktori proyek jika belum ada
-            PROJECT_DIR="/home/${{ secrets.USERNAME }}/herca-group"
-            mkdir -p $PROJECT_DIR
-            
-            # Pindahkan file docker-compose.yml dan nginx/default.conf ke VPS
-            scp -r ./docker-compose.yml ./nginx $PROJECT_DIR
+            # Pindah ke direktori proyek di VPS
+            cd /home/${{ secrets.USERNAME }}/herca-group
             
             echo "🔁 Pulling latest Docker images from Docker Hub..."
-            cd $PROJECT_DIR
             docker-compose pull
             
             echo "🛑 Stopping and removing old containers..."
             docker-compose down || true
-            
+
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -f
             
