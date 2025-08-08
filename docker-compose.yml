@@ -31,10 +31,6 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # Memasang folder dist frontend ke Nginx
-      - ./frontend/dist:/usr/share/nginx/html
-      # Memasang folder public backend ke Nginx
-      - ./backend/public:/var/www/html/public
       # Memasang file konfigurasi Nginx dari host ke dalam container
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
