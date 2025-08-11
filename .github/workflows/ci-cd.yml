@@ -64,6 +64,9 @@ jobs:
             echo "🚀 Running new containers with Docker Compose..."
             docker-compose up -d
 
+            docker-compose exec herca-backend chmod -R 775 storage
+            docker-compose exec herca-backend chown -R www-data:www-data storage
+
             echo "⏳ Running migrations on the backend container..."
             docker-compose exec herca-backend php artisan migrate --force
 
